@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from pydantic import BaseModel
 
 
@@ -44,8 +44,8 @@ class UserEntity(BaseModel):
     surveys_per_week: int = 2
     survey_complexity: str = "standard"
 
-# class UserPsychStatus(BaseModel):
-#     date: datetime = None
-#     summary: str
-#     recommendations: str
-#     status: []
+class UserPsychStatus(BaseModel):
+    date: datetime = None
+    summary: str
+    recommendations: str
+    status: List[int]

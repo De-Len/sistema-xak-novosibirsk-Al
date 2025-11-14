@@ -1,7 +1,7 @@
 from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
 from src.core.interfaces import ILLMProvider, IChatStorage
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
-from src.infrastructure.llm.MongoDBChatStorage import MongoDBChatStorage
+from src.infrastructure.mongodb_store.MongoDBChatStorage import MongoDBChatStorage
 
 class QueryLLMUseCase:
     def __init__(self, llm_provider: ILLMProvider, chat_storage: IChatStorage):
