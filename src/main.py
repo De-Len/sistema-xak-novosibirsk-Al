@@ -1,9 +1,11 @@
 import sys
 import os
+from datetime import datetime
 
 from src.application.use_cases.BuildVectorStoreUseCase import BuildVectorStoreUseCase
-from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase
-from src.core.entities import QueryRequest, LLMResponse
+from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
+from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+from src.core.entities.UserEntities import UserPsychStatus
 from src.infrastructure.file_reader.FileReader import FileReader
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
 from src.infrastructure.vector_store.ChromaVectorStore import ChromaVectorStore
@@ -14,27 +16,11 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import Config
 
 
-class RAGApplication:
+class APIApplication:
     def __init__(self, config: Config):
         self.config = config
+        self.use_case = UseCaseFactory.create_burnout_survey_use_case()
 
-        # Инициализация зависимостей
-        self.file_reader = FileReader()
-        self.vector_store = ChromaVectorStore(
-            persist_directory=config.VECTOR_STORE_PATH
-        )
-        self.llm_provider = DeepSeekLLM(
-            api_key=config.OPENAI_API_KEY,
-            base_url=config.DEEPSEEK_BASE_URL
-        )
-
-        # Инициализация use cases
-        self.build_vector_store_uc = BuildVectorStoreUseCase(
-            self.file_reader, self.vector_store
-        )
-        self.query_llm_uc = QueryLLMUseCase(
-            self.vector_store, self.llm_provider
-        )
 
     def build_vector_store(self) -> int:
         """Построение векторной базы данных из txt файлов"""
@@ -57,7 +43,7 @@ class RAGApplication:
 
 class QuerySystem:
     def __init__(self):
-        self.rag_app = RAGApplication(Config())
+        self.rag_app = APIApplication(Config())
         existing_docs = self.rag_app.vector_store.get_all_documents()
 
         if not existing_docs:
@@ -79,5 +65,34 @@ class QuerySystem:
             print(f"Error: {str(e)}")
 
 if __name__ == "__main__":
+    # Пример 1: Позитивный статус сотрудника
+    psych_status_1 = UserPsychStatus(
+        date=datetime(2024, 1, 15),
+        summary="Сотрудник демонстрирует высокий уровень мотивации и вовлеченности. Отлично справляется с рабочими задачами, проявляет инициативу. Эмоциональное состояние стабильное, наблюдается позитивный настрой.",
+        recommendations="Рекомендуется продолжить текущую поддержку. Рассмотреть возможность участия в менторской программе. Поощрить за активную позицию.",
+        status=["высокая мотивация", "стабильное эмоциональное состояние", "проактивность", "хорошая работоспособность"]
+    )
+
+    # Пример 2: Средний статус с небольшими проблемами
+    psych_status_2 = UserPsychStatus(
+        date=datetime(2024, 1, 10),
+        summary="Наблюдается умеренный уровень стресса, связанный с текущими проектами. Сотрудник испытывает некоторые трудности с тайм-менеджментом, но в целом справляется с нагрузкой.",
+        recommendations="Провести коучинг по управлению временем. Рассмотреть возможность временного снижения нагрузки. Увеличить частность check-in встреч.",
+        status=["умеренный стресс", "проблемы с тайм-менеджментом", "средняя работоспособность", "требуется поддержка"]
+    )
+
+    # Пример 3: Сотрудник в состоянии выгорания
+    psych_status_3 = UserPsychStatus(
+        date=datetime(2024, 1, 5),
+        summary="Выявлены признаки профессионального выгорания. Снижена продуктивность, наблюдается эмоциональное истощение. Сотрудник испытывает трудности с концентрацией.",
+        recommendations="Срочно организовать консультацию с психологом. Предоставить дополнительные дни отдыха. Временно снизить нагрузку. Рассмотреть возможность ротации задач.",
+        status=["выгорание", "эмоциональное истощение", "сниженная продуктивность", "тревожность",
+                "требуется немедленная помощь"]
+    )
+
+    example_psych_statuses = [
+        psych_status_1, psych_status_2, psych_status_3
+    ]
+
     query_system = QuerySystem()
-    query_system.query(QueryRequest("Подскажите, а где находится дирекция?"))
+    query_system.query(QueryRequest(example_psych_statuses))

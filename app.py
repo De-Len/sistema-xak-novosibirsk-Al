@@ -23,7 +23,7 @@ def check_api_key(api_key: str = Depends(api_key_header)):
     return True
 
 
-app = FastAPI(title="RAG API", version="1.0")
+app = FastAPI(title="Gordei's API", version="1.0")
 MAX_WORKERS = min(32, (os.cpu_count() or 1) * 2 + 1)
 thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 

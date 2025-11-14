@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 
+from src.core.entities.UserEntities import UserPsychStatus
+
+
 @dataclass
 class Document:
     content: str
@@ -16,9 +19,10 @@ class QueryResult:
 @dataclass
 class LLMResponse:
     content: str
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
+    chat_id: str
+    is_completed: bool
+    question_count: int
+    total_questions: int
 
 @dataclass
 class VectorSearchResult:
@@ -27,5 +31,7 @@ class VectorSearchResult:
 
 @dataclass
 class QueryRequest:
-    question: str
-    top_k: Optional[int] = 3
+    user_input: str
+    chat_id: Optional[str] = None
+    max_questions: int = 8
+    max_history_messages: int = 20

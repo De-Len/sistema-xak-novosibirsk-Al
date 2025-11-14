@@ -4,7 +4,7 @@ import asyncio
 import chromadb
 from chromadb.config import Settings
 
-from src.core.entities import Document, VectorSearchResult
+from src.core.entities.QueryEntitiesTODO import Document, VectorSearchResult
 from src.core.interfaces import IVectorStore
 from src.application.services.EmbeddingService import EmbeddingService
 
