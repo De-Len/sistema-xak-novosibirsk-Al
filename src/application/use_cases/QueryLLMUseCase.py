@@ -3,7 +3,6 @@ from src.core.interfaces import ILLMProvider, IChatStorage
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
 from src.infrastructure.llm.MongoDBChatStorage import MongoDBChatStorage
 
-
 class QueryLLMUseCase:
     def __init__(self, llm_provider: ILLMProvider, chat_storage: IChatStorage):
         self.llm_provider = llm_provider

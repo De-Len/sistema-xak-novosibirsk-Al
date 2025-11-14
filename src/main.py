@@ -93,6 +93,6 @@ if __name__ == "__main__":
     #     psych_status_1, psych_status_2, psych_status_3
     # ]
     query_system = QuerySystem()
-    asyncio.run(query_system.query(QueryRequest(user_input="Чувствую себя хорошо впринципе", chat_id="a18928bb-c244-413c-b5cc-72f58b852657")))
+    asyncio.run(query_system.query(QueryRequest(user_input="7", chat_id="39027a70-ab32-48fa-9907-1171e1867b40")))
 
 
