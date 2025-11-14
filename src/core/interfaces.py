@@ -28,28 +28,25 @@ class ILLMProvider(ABC):
 
 class IChatStorage(ABC):
     @abstractmethod
-    def create_chat(self, max_questions: int) -> str:
+    async def create_chat(self, max_questions: int) -> str:
         pass
 
     @abstractmethod
-    def get_chat(self, chat_id: str) -> Optional[Dict]:
+    async def get_chat(self, chat_id: str) -> Optional[Dict]:
         pass
 
     @abstractmethod
-    def add_message(self, chat_id: str, role: str, content: str):
+    async def add_message(self, chat_id: str, role: str, content: str):
         pass
 
     @abstractmethod
-    def increment_question_count(self, chat_id: str):
+    async def increment_question_count(self, chat_id: str):
         pass
 
     @abstractmethod
-    def is_chat_completed(self, chat_id: str) -> bool:
+    async def is_chat_completed(self, chat_id: str) -> bool:
         pass
 
-    @abstractmethod
-    def get_chat_messages(self, chat_id: str) -> list:
-        pass
 
 class IFileReader(ABC):
     @abstractmethod

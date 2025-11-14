@@ -11,13 +11,34 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from config import Config
 
+# src/application/api_app.py
+import sys
+import os
+from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
+from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from config import Config
+
+
 class APIApplication:
     def __init__(self, config: Config):
         self.config = config
-        self.use_case = UseCaseFactory.create_burnout_survey_use_case()
+        self.use_case = None
+
+    async def initialize(self):
+        """Асинхронная инициализация"""
+        self.use_case = await UseCaseFactory.create_burnout_survey_use_case(
+            self.config.MONGODB_CONNECTION_STRING
+        )
 
     async def query(self, query_request: QueryRequest) -> LLMResponse:
         """Универсальный метод для создания или продолжения диалога"""
+        if not self.use_case:
+            await self.initialize()
+
+
         response = await self.use_case.execute(query_request)
         print(f"chat_id: {response.chat_id}\ncontent: {response.content}\n"
               f"total_questions: {response.total_questions}\nquestion_count: {response.question_count}\n"
@@ -25,17 +46,19 @@ class APIApplication:
 
         return response
 
-
 class QuerySystem:
     def __init__(self):
-        self.rag_app = APIApplication(Config())
+        self.config = Config()
+        self.rag_app = APIApplication(self.config)
         print("\nSystem Ready!")
+
+    async def initialize(self):
+        """Асинхронная инициализация"""
+        await self.rag_app.initialize()
 
     async def query(self, query_request: QueryRequest) -> LLMResponse | None:
         try:
-            # Просто делегируем вызов APIApplication
             return await self.rag_app.query(query_request)
-
         except Exception as e:
             print(f"Error: {str(e)}")
             return None
@@ -70,6 +93,6 @@ if __name__ == "__main__":
     #     psych_status_1, psych_status_2, psych_status_3
     # ]
     query_system = QuerySystem()
-    asyncio.run(query_system.query(QueryRequest(user_input="Чувствую себя хорошо", chat_id="9f49158c-f9af-4db3-8602-951ab2bdfd23")))
+    asyncio.run(query_system.query(QueryRequest(user_input="Чувствую себя хорошо впринципе", chat_id="a18928bb-c244-413c-b5cc-72f58b852657")))
 
 
