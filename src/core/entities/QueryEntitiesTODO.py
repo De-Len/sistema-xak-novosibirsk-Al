@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 
-from src.core.entities.UserEntities import UserPsychStatus
+# from src.core.entities.UserEntities import UserPsychStatus
 
 
 @dataclass

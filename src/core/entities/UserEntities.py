@@ -44,8 +44,8 @@ class UserEntity(BaseModel):
     surveys_per_week: int = 2
     survey_complexity: str = "standard"
 
-class UserPsychStatus(BaseModel):
-    date: datetime = None
-    summary: str
-    recommendations: str
-    status: []
+# class UserPsychStatus(BaseModel):
+#     date: datetime = None
+#     summary: str
+#     recommendations: str
+#     status: []

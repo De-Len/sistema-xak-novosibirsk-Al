@@ -3,19 +3,6 @@ from src.core.interfaces import ILLMProvider, IChatStorage
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
 from src.infrastructure.llm.InMemoryChatStorage import InMemoryChatStorage
 
-
-class QueryLLMUseCase:
-    pass
-
-
-class UseCaseFactory:
-    @staticmethod
-    def create_burnout_survey_use_case() -> QueryLLMUseCase:
-        llm_provider = DeepSeekLLM()
-        chat_storage = InMemoryChatStorage()
-        return QueryLLMUseCase(llm_provider, chat_storage)
-    
-    
 class QueryLLMUseCase:
     def __init__(self, llm_provider: ILLMProvider, chat_storage: IChatStorage):
         self.llm_provider = llm_provider
@@ -60,3 +47,10 @@ class QueryLLMUseCase:
             return request.chat_id
         else:
             return self.chat_storage.create_chat(request.max_questions)
+
+class UseCaseFactory:
+    @staticmethod
+    def create_burnout_survey_use_case() -> QueryLLMUseCase:
+        llm_provider = DeepSeekLLM()
+        chat_storage = InMemoryChatStorage()
+        return QueryLLMUseCase(llm_provider, chat_storage)

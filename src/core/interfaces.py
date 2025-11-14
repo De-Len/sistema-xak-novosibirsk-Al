@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from src.core.entities.QueryEntities import DialogueEntity, MessageEntity
 from src.core.entities.QueryEntitiesTODO import Document, VectorSearchResult
-from src.core.entities.UserEntities import UserEntity, UserPsychStatus
+from src.core.entities.UserEntities import UserEntity
 
 
 class IVectorStore(ABC):
@@ -63,48 +63,3 @@ class IEmbeddingService(ABC):
         pass
 
 
-# NEW
-class IUserRepository(ABC):
-    @abstractmethod
-    def get_by_id(self, user_id: int) -> Optional[UserEntity]:
-        pass
-
-    @abstractmethod
-    def get_psych_status(self, user_id: int) -> Optional[UserPsychStatus]:
-        pass
-
-
-class IDialogueRepository(ABC):
-    @abstractmethod
-    def create_dialogue(self, dialogue: DialogueEntity) -> DialogueEntity:
-        pass
-
-    @abstractmethod
-    def get_user_dialogues(self, user_id: int) -> List[DialogueEntity]:
-        pass
-
-    @abstractmethod
-    def get_active_dialogue(self, user_id: int) -> Optional[DialogueEntity]:
-        pass
-
-    @abstractmethod
-    def deactivate_dialogue(self, dialogue_id: int) -> None:
-        pass
-
-    @abstractmethod
-    def update_dialogue(self, dialogue: DialogueEntity) -> None:
-        pass
-
-
-class IMessageRepository(ABC):
-    @abstractmethod
-    def add_message(self, message: MessageEntity) -> MessageEntity:
-        pass
-
-    @abstractmethod
-    def get_dialogue_messages(self, dialogue_id: int, limit: Optional[int] = None) -> List[MessageEntity]:
-        pass
-
-    @abstractmethod
-    def get_dialogue_messages_count(self, dialogue_id: int) -> int:
-        pass
