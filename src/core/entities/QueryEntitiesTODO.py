@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
+from src.core.entities.BurnoutResultEntities import BurnoutResult
 from src.core.entities.UserEntities import ListUserPsychStatus
 
 
@@ -21,11 +22,12 @@ class QueryResult:
 
 @dataclass
 class LLMResponse:
-    content: str
+    content: Union[str, BurnoutResult]  # Может быть строкой или результатом анализа
     chat_id: str
     is_completed: bool
     question_count: int
     total_questions: int
+    is_analysis: bool = False  # Флаг, что это анализ а не обычный ответ
 
 @dataclass
 class VectorSearchResult:
@@ -48,3 +50,4 @@ class LLMStreamResponse:
     question_count: int
     total_questions: int
     is_final_chunk: bool = False
+    is_analysis: bool = False

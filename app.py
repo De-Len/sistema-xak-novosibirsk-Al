@@ -1,5 +1,4 @@
 import os
-
 from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -29,19 +28,42 @@ MAX_WORKERS = min(32, (os.cpu_count() or 1) * 2 + 1)
 thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
 query_system = QuerySystem()
-# Единственный endpoint
+
+from typing import Union, Dict, Any
 @app.post("/query")
 async def query_rag(
         request: QueryRequest,
         api_key: bool = Depends(check_api_key)
-) -> LLMResponse:
+) -> Union[LLMResponse, Dict[str, Any]]:
     """Асинхронный запрос к системе"""
+    from src.core.entities.BurnoutResultEntities import BurnoutResult
 
     try:
-        return await query_system.query(request)
+        response = await query_system.query(request)
+
+        # Если это анализ, возвращаем структурированные данные
+        if response.is_analysis:
+            if isinstance(response.content, BurnoutResult):
+                return {
+                    "type": "analysis",
+                    "chat_id": response.chat_id,
+                    "is_completed": response.is_completed,
+                    "progress": f"{response.question_count}/{response.total_questions}",
+                    "analysis_result": response.content.to_dict()
+                }
+            else:
+                return {
+                    "type": "analysis_raw",
+                    "chat_id": response.chat_id,
+                    "is_completed": response.is_completed,
+                    "progress": f"{response.question_count}/{response.total_questions}",
+                    "content": response.content
+                }
+        else:
+            # Обычный ответ
+            return response
 
     except Exception as e:
-        # Обработка ошибок
         raise HTTPException(
             status_code=500,
             detail=f"Error processing request: {str(e)}"
@@ -68,7 +90,8 @@ async def query_rag_streaming(
                     "is_completed": chunk.is_completed,
                     "question_count": chunk.question_count,
                     "total_questions": chunk.total_questions,
-                    "is_final_chunk": chunk.is_final_chunk
+                    "is_final_chunk": chunk.is_final_chunk,
+                    "is_analysis": chunk.is_analysis  # ← ДОБАВЛЕНО: флаг анализа
                 }
 
                 # Отправляем chunk как SSE событие
@@ -86,6 +109,7 @@ async def query_rag_streaming(
                 "question_count": 0,
                 "total_questions": 0,
                 "is_final_chunk": True,
+                "is_analysis": False,
                 "error": True
             }
             yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
@@ -122,5 +146,4 @@ async def show_image():
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)
