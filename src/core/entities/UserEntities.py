@@ -49,7 +49,7 @@ class UserPsychStatus(BaseModel):
     date: datetime = None
     summary: str
     recommendations: str
-    status: List[int]
+    status: List[float]
 
     async def _format_date(self) -> str:
         """Асинхронно форматирует дату"""
@@ -60,14 +60,15 @@ class UserPsychStatus(BaseModel):
 
     async def _analyze_status_components(self) -> str:
         """Асинхронно анализирует компоненты статуса"""
-        if len(self.status) != 3:
-            return "   Ошибка: должно быть 3 показателя\n"
+        if len(self.status) != 4:
+            return "   Ошибка: должно быть 4 показателя\n"
 
-        emotional_exhaustion, depersonalization, reduction = self.status
+        emotional_exhaustion, depersonalization, reduction, burnout_index = self.status
 
         analysis_lines = [f"   1. Эмоциональное истощение: {emotional_exhaustion} ({str(self.status[0])})",
                           f"   2. Деперсонализация: {depersonalization} ({str(self.status[1])})",
-                          f"   3. Редукция проф. достижений: {reduction} ({str(self.status[2])})"]
+                          f"   3. Редукция проф. достижений: {reduction} ({str(self.status[2])})"
+                          f"   4. Системный индекс синдрома перегорания: {burnout_index} ({str(self.status[3])})"]
 
 
         return "\n".join(analysis_lines) + "\n"

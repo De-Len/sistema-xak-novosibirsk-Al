@@ -25,8 +25,8 @@ async def test_full_response():
             API_URL,
             headers=headers,
             json={
-                "user_input": "У меня всё супер",
-                "chat_id": "0bac1e30-ff98-4ef5-ac45-a6c02f009917"
+                "user_input": "",
+                "chat_id": ""
             }
         ) as response:
 
