@@ -2,37 +2,23 @@ import re
 import json
 
 
-def extract_json_from_text(text) -> str:
-    """
-    Извлекает JSON строку из текста, находя содержимое между ```json и ```
-
-    Args:
-        text (str): Исходный текст
-
-    Returns:
-        dict or list: Распарсенный JSON объект или None если не найден
-    """
-    # Паттерн для поиска содержимого между ```json и ```
+def extract_json_from_text(text) -> str | None:
     pattern = r'```json\s*(.*?)\s*```'
-
-    # Ищем все совпадения
     matches = re.findall(pattern, text, re.DOTALL)
 
-    if matches:
-        # Берем первое совпадение
-        json_string = matches[0]
-        try:
-            # Парсим JSON
-            return json_string
-        except json.JSONDecodeError as e:
-            print(f"Ошибка парсинга JSON: {e}")
-            return None
-    else:
-        print("JSON не найден в тексте")
+    if not matches:
         return None
 
+    json_string = matches[0]
 
-# Пример использования
+    try:
+        json.loads(json_string)  # проверка JSON корректности
+    except json.JSONDecodeError:
+        return None
+
+    return json_string
+
+
 if __name__ == "__main__":
 
     data = """
