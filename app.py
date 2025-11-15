@@ -11,8 +11,6 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from config import Config
 from src.main import QuerySystem
-from starlette.responses import HTMLResponse
-from img.html_img import html_img
 
 API_KEY = Config.API_KEY
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -108,12 +106,6 @@ async def health_check():
         "async": True
     }
 
-
-@app.get("/")
-async def show_image():
-    """Показывает картинку по ссылке"""
-    html_content = html_img
-    return HTMLResponse(content=html_content)
 
 if __name__ == "__main__":
     import uvicorn
