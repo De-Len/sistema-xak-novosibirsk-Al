@@ -1,5 +1,5 @@
 import asyncio
-from typing import List
+from typing import List, Tuple
 from src.core.entities.EmotionalCoefficient import EmotionalCoefficient
 from src.core.interfaces.IEmotionalClassification import IEmotionalClassification
 from src.infrastructure.emotion_classification.EmotionClassification import EmotionalClassification
@@ -54,10 +54,25 @@ class EmotionalUseCase:
         tasks = [self.analyze_single_message(text) for text in messages]
         return await asyncio.gather(*tasks)
 
+    async def analyze_messages_batch_top_emotions(self, messages: List[str]) -> List[Tuple[str, float]]:
+        """Возвращает для каждого текста только эмоцию с наибольшим значением"""
+        coefficients = await self.analyze_messages_batch(messages)
+        top_emotions = []
+        for coef in coefficients:
+            # Находим максимальное поле в dataclass
+            max_emotion = max(coef.__dict__.items(), key=lambda x: x[1])
+            top_emotions.append(max_emotion)  
+        return top_emotions
 
 async def main():
     use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
-    list = await use_case.analyze_messages_batch(["Я люблю мэдкида", 'я ненавижу мэдкида'])
+    texts = ["Я люблю мэдкида", 'я ненавижу мэдкида']
+    use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
+
+    top_emotions = await use_case.analyze_messages_batch_top_emotions(texts)
+
+    for text, (emotion, score) in zip(texts, top_emotions):
+        print(f"{text} → {emotion}: {score:.2f}")
     print()
 
 if __name__ == "__main__":
