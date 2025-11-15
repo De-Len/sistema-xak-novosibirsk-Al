@@ -1,5 +1,6 @@
 import asyncio
 import os
+import ssl
 import sys
 
 import aiohttp
@@ -13,8 +14,13 @@ load_dotenv()
 
 from config import Config
 
-API_URL = "http://0.0.0.0:8000/query-streaming"  # ← ДОБАВЛЕН ПУТЬ /query-streaming
+API_URL = "https://yearly-flexible-canvasback.cloudpub.ru/query-streaming"  # ← ДОБАВЛЕН ПУТЬ /query-streaming
 API_KEY = Config.API_KEY
+
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
 
 async def test_streaming():
     """Тестирует streaming endpoint"""
@@ -23,13 +29,15 @@ async def test_streaming():
         "Content-Type": "application/json"
     }
 
-    async with aiohttp.ClientSession() as session:
+    connector = aiohttp.TCPConnector(ssl=ssl_context)
+
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.post(
                 API_URL,  # ← Теперь правильный URL
                 headers=headers,
                 json={
-                    "user_input": "Не бывает",
-                    "chat_id": "22b745b5-830f-4633-b55b-f810c37e5e97"
+                    "user_input": "d445c5b7-b638-4008-a848-fc61c8652f17",
+                    "chat_id": "Хорошо чувствую"
                 }
         ) as response:
 

@@ -5,7 +5,7 @@ from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import asyncio
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import APIKeyHeader
