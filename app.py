@@ -14,7 +14,6 @@ from src.main import QuerySystem
 from starlette.responses import HTMLResponse
 from img.html_img import html_img
 
-# Аутентификация по API ключу
 API_KEY = Config.API_KEY
 api_key_header = APIKeyHeader(name="X-API-Key")
 
@@ -29,7 +28,6 @@ MAX_WORKERS = min(32, (os.cpu_count() or 1) * 2 + 1)
 thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
 query_system = QuerySystem()
-# Единственный endpoint
 @app.post("/query")
 async def query_rag(
         request: QueryRequest,
@@ -71,14 +69,11 @@ async def query_rag_streaming(
                     "is_final_chunk": chunk.is_final_chunk
                 }
 
-                # Отправляем chunk как SSE событие
                 yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
 
-                # Небольшая задержка для имитации "печатания" (опционально)
                 await asyncio.sleep(0.01)
 
         except Exception as e:
-            # В случае ошибки отправляем error event
             error_data = {
                 "content": f"Error: {str(e)}",
                 "chat_id": "",

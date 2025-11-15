@@ -2,17 +2,15 @@ import asyncio
 import os
 import sys
 import aiohttp
-import json
 from dotenv import load_dotenv
 
-# Подключаем корень проекта
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 load_dotenv()
 
 from config import Config
 
-API_URL = "http://0.0.0.0:8000/query"  # ← Обычный endpoint, не streaming
+API_URL = "http://0.0.0.0:8000/query"
 API_KEY = Config.API_KEY
 
 async def test_full_response():
@@ -28,7 +26,7 @@ async def test_full_response():
             headers=headers,
             json={
                 "user_input": "Всё очень ахуенно",
-                "chat_id": "9be81207-539f-4d9f-b3d3-a58a8902f762"
+                "chat_id": "72ec218-a4e9-4221-82ef-05eef1416bfb"
             }
         ) as response:
 

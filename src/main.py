@@ -1,26 +1,11 @@
 import asyncio
-import sys
-import os
 from datetime import datetime
 from typing import AsyncGenerator
-
 from src.core.entities.QueryEntities import LLMStreamResponse
 from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
-
-# from src.core.entities.UserEntities import UserPsychStatus
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-# src/application/api_app.py
-import sys
-import os
-from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
+from src.application.use_cases.QueryLLMUseCase import UseCaseFactory
 from src.core.entities.QueryEntities import QueryRequest, LLMResponse
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 from config import Config
-
 
 class APIApplication:
     def __init__(self, config: Config):
@@ -55,7 +40,6 @@ class APIApplication:
             async for chunk in self.use_case.execute_stream(query_request):
                 yield chunk
         else:
-            # Fallback: если streaming не поддерживается, возвращаем обычный ответ как один chunk
             response = await self.use_case.execute(query_request)
             yield LLMStreamResponse(
                 content_chunk=response.content,
@@ -65,7 +49,6 @@ class APIApplication:
                 total_questions=response.total_questions,
                 is_final_chunk=True
             )
-
 
 class QuerySystem:
     def __init__(self):

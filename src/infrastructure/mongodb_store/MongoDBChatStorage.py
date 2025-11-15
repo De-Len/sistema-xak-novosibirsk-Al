@@ -1,10 +1,9 @@
-# src/infrastructure/chat_storage/MongoDBChatStorage.py
 from typing import Optional, Dict, List
 import uuid
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 from src.application.use_cases.QueryLLMUseCase import IChatStorage
-from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
+from src.core.entities.UserEntities import ListUserPsychStatus
 
 
 class MongoDBChatStorage(IChatStorage):
@@ -65,7 +64,7 @@ class MongoDBChatStorage(IChatStorage):
     async def increment_question_count(self, chat_id: str):
         chat = await self.get_chat(chat_id)
         if chat:
-            new_count = chat['question_count'] + 1 # Чтобы вывелись результаты
+            new_count = chat['question_count'] + 1 # Увеличение
             update_data = {'$set': {'question_count': new_count}}
 
             if new_count >= chat['max_questions']:
@@ -93,7 +92,6 @@ class MongoDBChatStorage(IChatStorage):
             openai_messages.append({
                 "role": msg["role"],
                 "content": msg["content"]
-                # Исключаем timestamp, так как OpenAI его не принимает
             })
 
         return openai_messages
