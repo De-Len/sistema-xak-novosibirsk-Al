@@ -5,7 +5,8 @@ from src.core.entities.QueryEntities import (
     LLMResponse,
     LLMStreamResponse,
 )
-from src.core.interfaces import ILLMProvider, IChatStorage
+from src.core.interfaces.IChatStorage import IChatStorage
+from src.core.interfaces.ILLMProvider import ILLMProvider
 from src.infrastructure.extract_json_from_text.extract_json_from_text import extract_json_from_text
 
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM

@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 from src.application.use_cases.QueryLLMUseCase import IChatStorage
-from src.core.entities.UserEntities import ListUserPsychStatus
+from src.core.entities.user_entites.ListUserPsychStatus import ListUserPsychStatus
 
 
 class MongoDBChatStorage(IChatStorage):

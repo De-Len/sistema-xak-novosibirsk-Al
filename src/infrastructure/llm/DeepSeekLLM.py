@@ -1,7 +1,7 @@
 from typing import AsyncGenerator
 from openai import AsyncOpenAI
 from config import Config
-from src.core.interfaces import ILLMProvider
+from src.core.interfaces.ILLMProvider import ILLMProvider
 
 
 class DeepSeekLLM(ILLMProvider):

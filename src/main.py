@@ -2,10 +2,12 @@ import asyncio
 from datetime import datetime
 from typing import AsyncGenerator
 from src.core.entities.QueryEntities import LLMStreamResponse
-from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
 from src.application.use_cases.QueryLLMUseCase import UseCaseFactory
 from src.core.entities.QueryEntities import QueryRequest, LLMResponse
 from config import Config
+from src.core.entities.user_entites.ListUserPsychStatus import ListUserPsychStatus
+from src.core.entities.user_entites.UserPsychStatus import UserPsychStatus
+
 
 class APIApplication:
     def __init__(self, config: Config):

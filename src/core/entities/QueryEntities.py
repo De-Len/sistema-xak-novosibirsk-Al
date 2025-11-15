@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Union
 
 from src.core.entities.BurnoutResults import BurnoutResult
-from src.core.entities.UserEntities import ListUserPsychStatus
+from src.core.entities.user_entites.ListUserPsychStatus import ListUserPsychStatus
 
 
 @dataclass
