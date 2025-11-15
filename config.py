@@ -14,5 +14,4 @@ class Config:
     MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
     MONGODB_DATABASE = os.getenv("MONGODB_DATABASE")
 
-    # project_root = str(os.path.dirname(os.path.abspath(__file__)))
-    # DATA_DIRECTORY = project_root + "/data"
+    EMOTIONAL_CLASSIFICATION_MODEL_NAME = os.getenv("EMOTIONAL_CLASSIFICATION_MODEL_NAME")
