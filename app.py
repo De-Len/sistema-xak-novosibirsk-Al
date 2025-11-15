@@ -35,7 +35,7 @@ async def query_rag(
         request: QueryRequest,
         api_key: bool = Depends(check_api_key)
 ) -> LLMResponse:
-    """Асинхронный запрос к RAG-системе"""
+    """Асинхронный запрос к системе"""
 
     try:
         return await query_system.query(request)
@@ -46,6 +46,61 @@ async def query_rag(
             status_code=500,
             detail=f"Error processing request: {str(e)}"
         )
+
+
+@app.post("/query-streaming")
+async def query_rag_streaming(
+        request: QueryRequest,
+        api_key: bool = Depends(check_api_key)
+):
+    """Streaming запрос к системе"""
+    from starlette.responses import StreamingResponse
+    import json
+
+    async def generate_stream():
+        """Генерирует streaming response"""
+        try:
+            async for chunk in query_system.query_stream(request):
+                # Формируем данные в формате Server-Sent Events (SSE)
+                chunk_data = {
+                    "content": chunk.content_chunk,
+                    "chat_id": chunk.chat_id,
+                    "is_completed": chunk.is_completed,
+                    "question_count": chunk.question_count,
+                    "total_questions": chunk.total_questions,
+                    "is_final_chunk": chunk.is_final_chunk
+                }
+
+                # Отправляем chunk как SSE событие
+                yield f"data: {json.dumps(chunk_data, ensure_ascii=False)}\n\n"
+
+                # Небольшая задержка для имитации "печатания" (опционально)
+                await asyncio.sleep(0.01)
+
+        except Exception as e:
+            # В случае ошибки отправляем error event
+            error_data = {
+                "content": f"Error: {str(e)}",
+                "chat_id": "",
+                "is_completed": True,
+                "question_count": 0,
+                "total_questions": 0,
+                "is_final_chunk": True,
+                "error": True
+            }
+            yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        generate_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "X-API-Key, Content-Type",
+        }
+    )
+
 
 @app.get("/health")
 async def health_check():

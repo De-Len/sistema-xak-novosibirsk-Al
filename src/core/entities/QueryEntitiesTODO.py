@@ -39,3 +39,12 @@ class QueryRequest:
     max_questions: int = 8
     max_history_messages: int = 20
     list_user_psych_status: Optional[ListUserPsychStatus] = None
+
+@dataclass
+class LLMStreamResponse:
+    content_chunk: str
+    chat_id: str
+    is_completed: bool
+    question_count: int
+    total_questions: int
+    is_final_chunk: bool = False

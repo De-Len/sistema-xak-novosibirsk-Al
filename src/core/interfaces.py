@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, AsyncGenerator
 
 from src.core.entities.QueryEntities import DialogueEntity, MessageEntity
 from src.core.entities.QueryEntitiesTODO import Document, VectorSearchResult
@@ -23,6 +23,10 @@ class IVectorStore(ABC):
 class ILLMProvider(ABC):
     @abstractmethod
     async def generate_response(self, messages: list) -> str:
+        pass
+
+    @abstractmethod
+    async def generate_response_stream(self, messages: list) -> AsyncGenerator[str, None]:
         pass
 
 

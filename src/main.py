@@ -2,17 +2,14 @@ import asyncio
 import sys
 import os
 from datetime import datetime
-from typing import List
+from typing import AsyncGenerator
 
-from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
-from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+from src.core.entities.QueryEntitiesTODO import LLMStreamResponse
 from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
 
 # from src.core.entities.UserEntities import UserPsychStatus
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-from config import Config
 
 # src/application/api_app.py
 import sys
@@ -49,6 +46,27 @@ class APIApplication:
 
         return response
 
+    async def query_stream(self, query_request: QueryRequest) -> AsyncGenerator[LLMStreamResponse, None]:
+        """Streaming версия запроса"""
+        if not self.use_case:
+            await self.initialize()
+
+        if hasattr(self.use_case, 'execute_stream'):
+            async for chunk in self.use_case.execute_stream(query_request):
+                yield chunk
+        else:
+            # Fallback: если streaming не поддерживается, возвращаем обычный ответ как один chunk
+            response = await self.use_case.execute(query_request)
+            yield LLMStreamResponse(
+                content_chunk=response.content,
+                chat_id=response.chat_id,
+                is_completed=response.is_completed,
+                question_count=response.question_count,
+                total_questions=response.total_questions,
+                is_final_chunk=True
+            )
+
+
 class QuerySystem:
     def __init__(self):
         self.config = Config()
@@ -65,6 +83,23 @@ class QuerySystem:
         except Exception as e:
             print(f"Error: {str(e)}")
             return None
+
+    async def query_stream(self, query_request: QueryRequest) -> AsyncGenerator[LLMStreamResponse, None]:
+        """Streaming запрос"""
+        try:
+            async for chunk in self.rag_app.query_stream(query_request):
+                yield chunk
+        except Exception as e:
+            print(f"Error in streaming: {str(e)}")
+            yield LLMStreamResponse(
+                content_chunk=f"Error: {str(e)}",
+                chat_id="",
+                is_completed=True,
+                question_count=0,
+                total_questions=0,
+                is_final_chunk=True
+            )
+
 
 if __name__ == "__main__":
     # Пример 1: Позитивный статус сотрудника
