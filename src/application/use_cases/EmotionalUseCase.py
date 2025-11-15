@@ -59,21 +59,19 @@ class EmotionalUseCase:
         coefficients = await self.analyze_messages_batch(messages)
         top_emotions = []
         for coef in coefficients:
-            # Находим максимальное поле в dataclass
             max_emotion = max(coef.__dict__.items(), key=lambda x: x[1])
-            top_emotions.append(max_emotion)  
+            top_emotions.append(max_emotion)
         return top_emotions
 
-async def main():
-    use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
-    texts = ["Я люблю мэдкида", 'я ненавижу мэдкида']
-    use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
-
-    top_emotions = await use_case.analyze_messages_batch_top_emotions(texts)
-
-    for text, (emotion, score) in zip(texts, top_emotions):
-        print(f"{text} → {emotion}: {score:.2f}")
-    print()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+# async def main():
+#     texts = ["Я люблю мэдкида", 'я ненавижу мэдкида']
+#     use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
+#
+#     top_emotions = await use_case.analyze_messages_batch_top_emotions(texts)
+#
+#     for text, (emotion, score) in zip(texts, top_emotions):
+#         print(f"{text} → {emotion}: {score:.2f}")
+#     print()
+#
+# if __name__ == "__main__":
+#     asyncio.run(main())

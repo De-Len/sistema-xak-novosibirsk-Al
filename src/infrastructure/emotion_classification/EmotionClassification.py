@@ -1,7 +1,7 @@
 import asyncio
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
-import torch  # ✅ Правильный импорт PyTorch
+import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from config import Config
@@ -15,7 +15,7 @@ class EmotionalClassification(IEmotionalClassification):
         self.model_name = self.config.EMOTIONAL_CLASSIFICATION_MODEL_NAME
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
-        self.model.eval()  # ✅ Важно перевести модель в режим оценки
+        self.model.eval()
 
         self.label_names = {
             'neutral': 'нейтрально',

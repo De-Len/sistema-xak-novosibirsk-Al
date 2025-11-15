@@ -1,5 +1,6 @@
 from typing import AsyncGenerator, List, Dict, Any
 
+from src.application.use_cases.EmotionalUseCase import EmotionalUseCase
 from src.core.entities.QueryEntities import (
     QueryRequest,
     LLMResponse,
@@ -7,6 +8,7 @@ from src.core.entities.QueryEntities import (
 )
 from src.core.interfaces.IChatStorage import IChatStorage
 from src.core.interfaces.ILLMProvider import ILLMProvider
+from src.infrastructure.emotion_classification.EmotionClassification import EmotionalClassification
 from src.infrastructure.extract_json_from_text.extract_json_from_text import extract_json_from_text
 
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
@@ -21,6 +23,15 @@ class QueryLLMUseCase:
         self.llm_provider = llm_provider
         self.chat_storage = chat_storage
         self.analysis_prompt = self._build_analysis_prompt()
+        self.emotional_use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
+
+    async def _extract_user_messages(self, full_messages: List[Dict[str, Any]]) -> List[str]:
+        """Асинхронно извлекает массив строк только с запросами от пользователя"""
+        return [
+            message['content']
+            for message in full_messages
+            if message['role'] == 'user' and message['content'].strip()
+        ]
 
     async def execute(self, query_request: QueryRequest) -> LLMResponse:
         chat_id, current_question_count = await self._get_or_init_chat(query_request)
@@ -31,11 +42,11 @@ class QueryLLMUseCase:
         full_messages = await self.chat_storage.get_chat_messages_with_timestamp(chat_id)
         should_use_analysis = self._should_run_analysis(full_messages, current_question_count)
 
-        messages = (
-            await self._prepare_messages_for_analysis(chat_id)
-            if should_use_analysis
-            else await self.chat_storage.get_chat_messages(chat_id)
-        )
+        if should_use_analysis:
+            messages = await self._prepare_messages_for_analysis(full_messages, chat_id)
+
+        else:
+            messages = await self.chat_storage.get_chat_messages(chat_id)
 
         assistant_response = await self.llm_provider.generate_response(messages)
 
@@ -122,6 +133,7 @@ class QueryLLMUseCase:
             "ТЫ ДОЛЖЕН ВЫВЕСТИ ТОЛЬКО JSON БЕЗ ЛЮБЫХ ДОПОЛНИТЕЛЬНЫХ СЛОВ, "
             "КОММЕНТАРИЕВ ИЛИ ФОРМАТИРОВАНИЯ.\n"
             "Ты профессиональный психолог. Проанализируй полученные ответы "
+            "К каждому сообщению у тебя есть оценка самой высокой эмоции и её коэффициент от 0 до 1"
             "на опрос профессионального выгорания (MBI) и предоставь результаты.\n\n"
             "Шкалы оценки:\n"
             "- Эмоциональное истощение (0-54): 0-15 низкий, 16-24 средний, 25+ высокий\n"
@@ -144,6 +156,8 @@ class QueryLLMUseCase:
             "НЕ ПИШИ НИКАКИХ ПРЕДИСЛОВИЙ ИЛИ КОММЕНТАРИЕВ. ТОЛЬКО ЧИСТЫЙ JSON."
         )
 
+
+
     async def _get_or_init_chat(self, request: QueryRequest) -> tuple[str, int]:
         if request.chat_id:
             existing_chat = await self.chat_storage.get_chat(request.chat_id)
@@ -163,18 +177,28 @@ class QueryLLMUseCase:
         if not full_messages:
             return False
         last = full_messages[-1]
-        return last.get("role") == "user"
+        if last.get("role") == "user":
+            return True
 
-    async def _prepare_messages_for_analysis(self, chat_id: str) -> List[Dict[str, str]]:
+    async def _prepare_messages_for_analysis(self, full_messages, chat_id: str) -> List[Dict[str, str]]:
         all_messages = await self.chat_storage.get_chat_messages_with_timestamp(chat_id)
+        user_messages = await self._extract_user_messages(full_messages)
+        top_emotions = await self.emotional_use_case.analyze_messages_batch_top_emotions(user_messages)
 
-        dialog_messages = [
-            {"role": msg["role"], "content": msg["content"]}
-            for msg in all_messages
-            if msg["role"] in {"user", "assistant"}
-        ]
+        dialog_messages = []
+        user_idx = 0
+        for msg in all_messages:
+            if msg["role"] in {"user", "assistant"}:
+                content = msg["content"]
+                if msg["role"] == "user":
+                    content += f"\nЭмоциональная оценка сообщения: {top_emotions[user_idx]}"
+                    user_idx += 1
+                dialog_messages.append({"role": msg["role"], "content": content})
 
-        return [{"role": "system", "content": self.analysis_prompt}, *dialog_messages]
+
+        return [{"role": "system", "content": f"{self.analysis_prompt}.\n"
+                                f"Ещё учитывай подсчёт эмоций на каждый вопрос:{top_emotions}"},
+                *dialog_messages]
 
     def _process_analysis_if_needed(self, should_use_analysis: bool, assistant_response: str):
         if not should_use_analysis:
