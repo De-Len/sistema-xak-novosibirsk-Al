@@ -10,9 +10,9 @@ class DeepSeekLLM(ILLMProvider):
         self.config = Config()
         self.client = AsyncOpenAI(
             api_key=self.config.OPENAI_API_KEY,
-            base_url=self.config.DEEPSEEK_BASE_URL,
+            base_url=self.config.LLM_BASE_URL,
         )
-        self.model = "deepseek/deepseek-chat-v3-0324"
+        self.model = self.config.LLM_MODEL
 
     async def generate_response(self, messages: list) -> str:
         try:

@@ -1,55 +1,56 @@
 import asyncio
 import os
-import ssl
 import sys
-import time
-
 import aiohttp
-import requests
 import json
 from dotenv import load_dotenv
 
+# Подключаем корень проекта
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 load_dotenv()
 
 from config import Config
 
-API_URL = "http://0.0.0.0:8000"
+API_URL = "http://0.0.0.0:8000/query"  # ← Обычный endpoint, не streaming
 API_KEY = Config.API_KEY
 
-
-async def test_query(question: str):
-    data = {
-        "user_input": "",
-    }
+async def test_full_response():
+    """Тестирует обычный endpoint, выдающий полный ответ сразу"""
     headers = {
         "X-API-Key": API_KEY,
         "Content-Type": "application/json"
     }
 
-    start_time = time.time()
     async with aiohttp.ClientSession() as session:
-        tasks = [
-            session.post(f"{API_URL}/query", json=data, headers=headers)
-            for _ in range(1)
-        ]
-        # tasks = [
-        #     session.get(f"{API_URL}/health")
-        #     for _ in range(2)
-        # ]
+        async with session.post(
+            API_URL,
+            headers=headers,
+            json={
+                "user_input": "Всё очень ахуенно",
+                "chat_id": "9be81207-539f-4d9f-b3d3-a58a8902f762"
+            }
+        ) as response:
 
-        responses = await asyncio.gather(*tasks)
+            print("🔄 Отправка запроса...\n")
+            try:
+                data = await response.json()
+            except aiohttp.ContentTypeError:
+                # Если сервер вернул не JSON
+                text = await response.text()
+                print("Ответ текст:", text)
+                return
 
-        for i, response in enumerate(responses):
-            print(f"Запрос {i + 1}: статус {response.status}")
+            # Выводим весь ответ в формате, похожем на стриминг
+            content = data.get("content", "")
+            print("📝 Ответ:")
+            print(content)
 
-    total_time = time.time() - start_time
-    print(f"Общее время: {total_time:.2f} секунд")
+            print(f"\n✅ Запрос завершён!")
+            print(f"📊 Chat ID: {data.get('chat_id')}")
+            print(f"❓ Прогресс: {data.get('question_count')}/{data.get('total_questions')}")
+            print(f"🏁 Завершен: {data.get('is_completed')}")
 
-    # Если время ~ равно времени одного запроса - работает параллельно
-    # Если время = время_одного_запроса * количество - последователь
-
-
+# Запуск теста
 if __name__ == "__main__":
-    asyncio.run(test_query(""))
+    asyncio.run(test_full_response())

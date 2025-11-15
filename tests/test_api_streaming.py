@@ -28,8 +28,8 @@ async def test_streaming():
                 API_URL,  # ← Теперь правильный URL
                 headers=headers,
                 json={
-                    "user_input": "иногда",
-                    "chat_id": "8c18a21d-5d03-4465-b1b2-e379e51d1ada"
+                    "user_input": "Не бывает",
+                    "chat_id": "22b745b5-830f-4633-b55b-f810c37e5e97"
                 }
         ) as response:
 

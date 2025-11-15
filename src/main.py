@@ -2,18 +2,20 @@ import asyncio
 import sys
 import os
 from datetime import datetime
-from typing import AsyncGenerator, Dict, Any
+from typing import AsyncGenerator
 
-from src.core.entities.BurnoutResultEntities import BurnoutResult
-from src.core.entities.QueryEntitiesTODO import LLMStreamResponse
+from src.core.entities.QueryEntities import LLMStreamResponse
 from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
+
+# from src.core.entities.UserEntities import UserPsychStatus
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# src/application/api_app.py
 import sys
 import os
 from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
-from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+from src.core.entities.QueryEntities import QueryRequest, LLMResponse
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -32,8 +34,10 @@ class APIApplication:
         )
 
     async def query(self, query_request: QueryRequest) -> LLMResponse:
+        """Универсальный метод для создания или продолжения диалога"""
         if not self.use_case:
             await self.initialize()
+
 
         response = await self.use_case.execute(query_request)
         print(f"chat_id: {response.chat_id}\ncontent: {response.content}\n"
@@ -53,19 +57,13 @@ class APIApplication:
         else:
             # Fallback: если streaming не поддерживается, возвращаем обычный ответ как один chunk
             response = await self.use_case.execute(query_request)
-
-            # Определяем, является ли ответ анализом
-            is_analysis = response.is_analysis if hasattr(response, 'is_analysis') else False
-
             yield LLMStreamResponse(
-                content_chunk=response.content.to_json() if is_analysis and isinstance(response.content,
-                                                                                       BurnoutResult) else response.content,
+                content_chunk=response.content,
                 chat_id=response.chat_id,
                 is_completed=response.is_completed,
                 question_count=response.question_count,
                 total_questions=response.total_questions,
-                is_final_chunk=True,
-                is_analysis=is_analysis
+                is_final_chunk=True
             )
 
 
@@ -99,8 +97,7 @@ class QuerySystem:
                 is_completed=True,
                 question_count=0,
                 total_questions=0,
-                is_final_chunk=True,
-                is_analysis=False
+                is_final_chunk=True
             )
 
 
@@ -135,3 +132,5 @@ if __name__ == "__main__":
     )
     query_system = QuerySystem()
     asyncio.run(query_system.query(QueryRequest(user_input="", list_user_psych_status=example_psych_statuses)))
+
+
