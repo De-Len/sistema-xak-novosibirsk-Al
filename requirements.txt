@@ -16,3 +16,4 @@ pymongo>=4.5.0
 sympy~=1.14.0
 transformers~=4.57.1
 pytest~=9.0.1
+torch~=2.9.1

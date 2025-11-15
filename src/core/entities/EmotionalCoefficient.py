@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class EmotionalСoefficient:
+class EmotionalCoefficient:
     neutral: float
     joy: float
     sadness: float
