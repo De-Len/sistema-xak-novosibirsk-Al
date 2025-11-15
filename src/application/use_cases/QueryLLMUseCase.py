@@ -1,4 +1,5 @@
 from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+from src.core.entities.UserEntities import ListUserPsychStatus
 from src.core.interfaces import ILLMProvider, IChatStorage
 from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
 from src.infrastructure.mongodb_store.MongoDBChatStorage import MongoDBChatStorage
@@ -10,7 +11,7 @@ class QueryLLMUseCase:
 
     async def execute(self, query_request: QueryRequest) -> LLMResponse:
         # Определяем или создаем chat_id
-        chat_id = await self._get_or_create_chat_id(query_request)
+        chat_id = await self._get_or_create_chat_id(query_request.list_user_psych_status, query_request)
 
         # Добавляем сообщение пользователя
         await self.chat_storage.add_message(chat_id, "user", query_request.user_input)
@@ -41,11 +42,11 @@ class QueryLLMUseCase:
             total_questions=query_request.max_questions
         )
 
-    async def _get_or_create_chat_id(self, request: QueryRequest) -> str:
+    async def _get_or_create_chat_id(self, list_user_psych_status: ListUserPsychStatus, request: QueryRequest) -> str:
         if request.chat_id and await self.chat_storage.get_chat(request.chat_id):
             return request.chat_id
         else:
-            return await self.chat_storage.create_chat(request.max_questions)
+            return await self.chat_storage.create_chat(list_user_psych_status, request.max_questions)
 
 
 class UseCaseFactory:

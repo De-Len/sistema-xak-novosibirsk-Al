@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 
+from src.core.entities.UserEntities import ListUserPsychStatus
+
+
 # from src.core.entities.UserEntities import UserPsychStatus
 
 
@@ -31,7 +34,8 @@ class VectorSearchResult:
 
 @dataclass
 class QueryRequest:
-    user_input: str
+    user_input: str = ""
     chat_id: Optional[str] = None
     max_questions: int = 8
     max_history_messages: int = 20
+    list_user_psych_status: Optional[ListUserPsychStatus] = None

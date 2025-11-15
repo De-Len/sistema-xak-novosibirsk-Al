@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 from src.application.use_cases.QueryLLMUseCase import IChatStorage
+from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
 
 
 class MongoDBChatStorage(IChatStorage):
@@ -28,16 +29,16 @@ class MongoDBChatStorage(IChatStorage):
     Не торопись, веди диалог естественно и поддерживающе.
     """
 
-    async def create_chat(self, max_questions: int) -> str:
+    async def create_chat(self, list_user_psych_status: ListUserPsychStatus, max_questions: int) -> str:
         chat_id = str(uuid.uuid4())
-
+        full_prompt = f"{self.system_prompt} \nЕщё учитывай контекст: {await list_user_psych_status.to_string()}" if list_user_psych_status is not None else self.system_prompt
         chat_session = {
             '_id': chat_id,
             'created_at': datetime.now(),
             'messages': [
                 {
                     "role": "system",
-                    "content": self.system_prompt,
+                    "content": full_prompt,
                     "timestamp": datetime.now()
                 }
             ],

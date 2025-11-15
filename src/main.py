@@ -2,10 +2,11 @@ import asyncio
 import sys
 import os
 from datetime import datetime
+from typing import List
 
 from src.application.use_cases.QueryLLMUseCase import QueryLLMUseCase, UseCaseFactory
 from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
-from src.core.entities.UserEntities import UserPsychStatus
+from src.core.entities.UserEntities import UserPsychStatus, ListUserPsychStatus
 
 # from src.core.entities.UserEntities import UserPsychStatus
 
@@ -88,13 +89,13 @@ if __name__ == "__main__":
         summary="Выявлены признаки профессионального выгорания. Снижена продуктивность, наблюдается эмоциональное истощение. Сотрудник испытывает трудности с концентрацией.",
         recommendations="Срочно организовать консультацию с психологом. Предоставить дополнительные дни отдыха. Временно снизить нагрузку. Рассмотреть возможность ротации задач.",
         status=[80, 74, 80]
-
     )
 
-    example_psych_statuses = [
-        psych_status_1, psych_status_2, psych_status_3
-    ]
+    example_psych_statuses = ListUserPsychStatus(
+        user_id=1,
+        list_user_psych_status=[psych_status_1, psych_status_2, psych_status_3]
+    )
     query_system = QuerySystem()
-    asyncio.run(query_system.query(QueryRequest(user_input="7", chat_id="39027a70-ab32-48fa-9907-1171e1867b40")))
+    asyncio.run(query_system.query(QueryRequest(user_input="", list_user_psych_status=example_psych_statuses)))
 
 

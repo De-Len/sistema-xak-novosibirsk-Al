@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from src.core.entities.QueryEntities import DialogueEntity, MessageEntity
 from src.core.entities.QueryEntitiesTODO import Document, VectorSearchResult
-from src.core.entities.UserEntities import UserEntity
+from src.core.entities.UserEntities import UserEntity, UserPsychStatus, ListUserPsychStatus
 
 
 class IVectorStore(ABC):
@@ -28,7 +28,7 @@ class ILLMProvider(ABC):
 
 class IChatStorage(ABC):
     @abstractmethod
-    async def create_chat(self, max_questions: int) -> str:
+    async def create_chat(self, list_user_psych_status: ListUserPsychStatus, max_questions: int) -> str:
         pass
 
     @abstractmethod

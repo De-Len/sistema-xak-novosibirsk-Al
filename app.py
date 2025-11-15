@@ -1,5 +1,7 @@
 import os
 
+from src.core.entities.QueryEntitiesTODO import QueryRequest, LLMResponse
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import asyncio
@@ -8,7 +10,6 @@ from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from config import Config
-from src.core.entities import QueryRequest, LLMResponse
 from src.main import QuerySystem
 from starlette.responses import HTMLResponse
 from img.html_img import html_img

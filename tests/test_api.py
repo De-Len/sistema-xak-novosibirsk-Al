@@ -1,5 +1,6 @@
 import asyncio
 import os
+import ssl
 import sys
 import time
 
@@ -14,14 +15,13 @@ load_dotenv()
 
 from config import Config
 
-API_URL = "https://yearly-flexible-canvasback.cloudpub.ru"
+API_URL = "http://0.0.0.0:8000"
 API_KEY = Config.API_KEY
 
 
 async def test_query(question: str):
     data = {
-        "question": question,
-        "top_k": 3
+        "user_input": "",
     }
     headers = {
         "X-API-Key": API_KEY,
@@ -29,7 +29,6 @@ async def test_query(question: str):
     }
 
     start_time = time.time()
-
     async with aiohttp.ClientSession() as session:
         tasks = [
             session.post(f"{API_URL}/query", json=data, headers=headers)
@@ -53,4 +52,4 @@ async def test_query(question: str):
 
 
 if __name__ == "__main__":
-    asyncio.run(test_query("Какие есть правила вежливости в дирекции?"))
+    asyncio.run(test_query(""))
