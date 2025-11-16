@@ -1,7 +1,7 @@
 from typing import AsyncGenerator
 
 from config import Config
-from src.application.use_cases.QueryLLMUseCase import UseCaseFactory
+from src.application.use_cases.factory.UseCaseFactory import UseCaseFactory
 from src.core.entities.QueryEntities import QueryRequest, LLMResponse, LLMStreamResponse
 
 

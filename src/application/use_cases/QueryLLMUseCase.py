@@ -8,22 +8,22 @@ from src.core.entities.QueryEntities import (
 )
 from src.core.interfaces.IChatStorage import IChatStorage
 from src.core.interfaces.ILLMProvider import ILLMProvider
-from src.infrastructure.emotion_classification.EmotionClassification import EmotionalClassification
 from src.infrastructure.extract_json_from_text.extract_json_from_text import extract_json_from_text
-
-from src.infrastructure.llm.DeepSeekLLM import DeepSeekLLM
-from src.infrastructure.mongodb_store.MongoDBChatStorage import MongoDBChatStorage
-
 
 ANALYSIS_TRIGGER_QUESTION = 7
 
 
 class QueryLLMUseCase:
-    def __init__(self, llm_provider: ILLMProvider, chat_storage: IChatStorage):
+    def __init__(
+            self,
+            llm_provider: ILLMProvider,
+            chat_storage: IChatStorage,
+            emotional_use_case: EmotionalUseCase
+    ):
         self.llm_provider = llm_provider
         self.chat_storage = chat_storage
         self.analysis_prompt = self._build_analysis_prompt()
-        self.emotional_use_case = EmotionalUseCase(emotional_classification=EmotionalClassification())
+        self.emotional_use_case = emotional_use_case
 
     async def _extract_user_messages(self, full_messages: List[Dict[str, Any]]) -> List[str]:
         """Асинхронно извлекает массив строк только с запросами от пользователя"""
@@ -212,21 +212,8 @@ class QueryLLMUseCase:
         return parsed_result, True
 
     def _finalize_stream_analysis(self, should_use_analysis: bool, full_response: str) -> tuple[str, bool]:
-        # TODO
-        # if not should_use_analysis:
-        #     return full_response, False
-        #
-        # parsed_result = self.analysis_service.parse_llm_response(full_response)
-        # if not parsed_result:
-        #     return full_response, False
-        #
-        # return parsed_result.to_json(), True
-        return full_response, False
+        parsed_result = extract_json_from_text(full_response)
+
+        return parsed_result, False
 
 
-class UseCaseFactory:
-    @staticmethod
-    async def create_burnout_survey_use_case(mongo_connection_string: str) -> QueryLLMUseCase:
-        llm_provider = DeepSeekLLM()
-        chat_storage = MongoDBChatStorage(mongo_connection_string)
-        return QueryLLMUseCase(llm_provider, chat_storage)
