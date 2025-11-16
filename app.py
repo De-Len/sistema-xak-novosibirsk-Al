@@ -1,9 +1,5 @@
 import os
-
 from src.core.entities.QueryEntities import QueryRequest, LLMResponse
-
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -21,13 +17,13 @@ def check_api_key(api_key: str = Depends(api_key_header)):
     return True
 
 
-app = FastAPI(title="Gordei's API", version="1.0")
+app = FastAPI(title="PI-231's API", version="1.0")
 MAX_WORKERS = min(32, (os.cpu_count() or 1) * 2 + 1)
 thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
 query_system = QuerySystem()
 @app.post("/query")
-async def query_rag(
+async def query(
         request: QueryRequest,
         api_key: bool = Depends(check_api_key)
 ) -> LLMResponse:
@@ -37,7 +33,6 @@ async def query_rag(
         return await query_system.query(request)
 
     except Exception as e:
-        # Обработка ошибок
         raise HTTPException(
             status_code=500,
             detail=f"Error processing request: {str(e)}"
@@ -45,7 +40,7 @@ async def query_rag(
 
 
 @app.post("/query-streaming")
-async def query_rag_streaming(
+async def query_streaming(
         request: QueryRequest,
         api_key: bool = Depends(check_api_key)
 ):
@@ -57,7 +52,6 @@ async def query_rag_streaming(
         """Генерирует streaming response"""
         try:
             async for chunk in query_system.query_stream(request):
-                # Формируем данные в формате Server-Sent Events (SSE)
                 chunk_data = {
                     "content": chunk.content_chunk,
                     "chat_id": chunk.chat_id,
@@ -100,7 +94,7 @@ async def health_check():
     """Проверка здоровья сервиса"""
     return {
         "status": "healthy",
-        "service": "It's me, Gordei!",
+        "service": "It's me, PI-231!",
         "time": datetime.now().isoformat(),
         "thread_pool_workers": MAX_WORKERS,
         "async": True

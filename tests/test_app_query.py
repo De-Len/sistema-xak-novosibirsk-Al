@@ -26,7 +26,7 @@ async def test_full_response():
             headers=headers,
             json={
                 "user_input": "Всё хорошо (тестовый ответ) давай дальше",
-                "chat_id": "d2aa2f5f-919e-4605-a503-f3c00298f9b6"
+                "chat_id": "ae74adb1-8546-4e5c-bbec-ca75d5ba9b68"
             }
         ) as response:
 
@@ -47,6 +47,6 @@ async def test_full_response():
             print(f"❓ Прогресс: {data.get('question_count')}/{data.get('total_questions')}")
             print(f"🏁 Завершен: {data.get('is_completed')}")
 
-# Запуск теста
+
 if __name__ == "__main__":
     asyncio.run(test_full_response())

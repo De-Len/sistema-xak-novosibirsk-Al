@@ -1,5 +1,3 @@
-import pytest
-
 from src.infrastructure.extract_json_from_text.extract_json_from_text import extract_json_from_text
 
 

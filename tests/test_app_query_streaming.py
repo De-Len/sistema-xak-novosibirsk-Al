@@ -1,10 +1,8 @@
 import asyncio
 import os
 import sys
-
 import aiohttp
 import json
-
 from dotenv import load_dotenv
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,7 +11,7 @@ load_dotenv()
 
 from config import Config
 
-API_URL = "http://0.0.0.0:8000/query-streaming"  # ← ДОБАВЛЕН ПУТЬ /query-streaming
+API_URL = "http://0.0.0.0:8000/query-streaming"
 API_KEY = Config.API_KEY
 
 async def test_streaming():
@@ -25,7 +23,7 @@ async def test_streaming():
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                API_URL,  # ← Теперь правильный URL
+                API_URL,
                 headers=headers,
                 json={
                     "user_input": "Не бывает",
@@ -56,6 +54,5 @@ async def test_streaming():
                     except json.JSONDecodeError:
                         continue
 
-# Запуск теста
 if __name__ == "__main__":
     asyncio.run(test_streaming())
