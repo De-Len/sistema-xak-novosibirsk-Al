@@ -185,14 +185,15 @@ class QueryLLMUseCase:
         user_messages = await self._extract_user_messages(full_messages)
         top_emotions = await self.emotional_use_case.analyze_messages_batch_top_emotions(user_messages)
 
+        user_iter = iter(top_emotions)
         dialog_messages = []
-        user_idx = 0
         for msg in all_messages:
             if msg["role"] in {"user", "assistant"}:
                 content = msg["content"]
                 if msg["role"] == "user":
-                    content += f"\nЭмоциональная оценка сообщения: {top_emotions[user_idx]}"
-                    user_idx += 1
+                    emo = next(user_iter, None)
+                    if emo is not None:
+                        content += f"\nЭмоциональная оценка сообщения: {emo}"
                 dialog_messages.append({"role": msg["role"], "content": content})
 
 

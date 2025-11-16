@@ -4,7 +4,7 @@ import sys
 import aiohttp
 from dotenv import load_dotenv
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 load_dotenv()
 
@@ -25,8 +25,8 @@ async def test_full_response():
             API_URL,
             headers=headers,
             json={
-                "user_input": "Всё хорошо (тестовый ответ) давай дальше",
-                "chat_id": "ae74adb1-8546-4e5c-bbec-ca75d5ba9b68"
+                "user_input": "Я бы стал больше спать",
+                "chat_id": "b6e8bb10-16af-4ce7-b186-776bed94de90"
             }
         ) as response:
 
