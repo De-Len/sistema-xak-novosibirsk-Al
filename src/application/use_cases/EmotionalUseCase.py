@@ -2,8 +2,6 @@ import asyncio
 from typing import List, Tuple
 from src.core.entities.EmotionalCoefficient import EmotionalCoefficient
 from src.core.interfaces.IEmotionalClassification import IEmotionalClassification
-from src.infrastructure.emotion_classification.EmotionClassification import EmotionalClassification
-
 
 class EmotionalUseCase:
     def __init__(self, emotional_classification: IEmotionalClassification):

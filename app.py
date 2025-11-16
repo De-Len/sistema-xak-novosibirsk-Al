@@ -10,7 +10,7 @@ from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from config import Config
-from src.main import QuerySystem
+from src.QuerySystem import QuerySystem
 
 API_KEY = Config.API_KEY
 api_key_header = APIKeyHeader(name="X-API-Key")
